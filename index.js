@@ -20,6 +20,9 @@ var path = require('path'),
 // Public URL
   public_url = (process.env.PUBLIC_URL == undefined ? env.PUBLIC_URL : process.env.PUBLIC_URL),
 
+// Image Limit
+  image_limit = (process.env.IMAGE_LIMIT == undefined ? env.IMAGE_LIMIT : process.env.IMAGE_LIMIT),
+
 // Express framework
   express = require('express'),
 
@@ -89,8 +92,88 @@ var path = require('path'),
     return res.json({err:"Not Found"});
   },
 
+// Create a new gallery, return id
+  makeGallery = function (req, res) {
+    var gallery = new Gallery(),
+      thisId = gallery.id;
+
+    // Store the gallery in the metadata
+    metadata[thisId] = gallery;
+
+    // Remove the internal id attribute
+    delete(metadata[thisId].id);
+
+    // Save the metadata in the metadata.json file
+    fs.writeFile(metadataStorage, JSON.stringify(metadata, null, 2));
+
+    res.json({id: thisId});
+
+    return(thisId);
+  },
+
+// Add an item to a gallery (up to the limit)
+  addItem = function (req, res) {
+    // The id of the gallery
+    var thisId = req.params.id,
+      form = new multiparty.Form({uploadDir: incomingPath});
+
+    // If they haven't specified an id, then create one
+    if (thisId == undefined) {
+      thisId = makeGallery(req, res);
+    }
+
+    var gallery = metadata[thisId];
+    
+    console.log('addItem ->gallery: ', thisId, gallery);
+
+    if (gallery && gallery.files instanceof Array && gallery.files.length < image_limit) {
+      form.parse(req, function (err, fields, files) {
+        // These are the file measurements
+        var width = 0, height = 0,
+        // Move the uploaded files into a subdirectory of the content folder
+        // according to the galleryId
+          newLocation = path.join(__dirname, 'content', thisId);
+
+          // Create the new folder
+          mkdirp(newLocation),
+
+          // The file being processed
+          file = files.images[0];
+        
+        console.log('files:', files);
+
+        fs.rename(file.path, path.join(newLocation, file.originalFilename), function (err) {
+          if (err) {
+            console.log("Err: ", err);
+          }
+        });
+
+        gallery.files.push(new Image({
+          pictureName: file.originalFilename,
+          artist: file.originalFilename,
+          url: 'http://' + path.join(public_url, "content", thisId, file.originalFilename),
+          width: width,
+          height: height
+        }));
+
+        // Remove the internal id attribute
+        delete(metadata[thisId].id);
+
+        // Save the metadata in the metadata.json file
+        fs.writeFile(metadataStorage, JSON.stringify(metadata, null, 2));
+        console.log("addItem complete : ", metadata[thisId]);
+
+        // res.json({id: thisId});
+        res.end(JSON.stringify({id: thisId}));
+      });
+    } else {
+      res.json(Object.assign({}, gallery, {error: 'gallery not found or already full'}));
+    }
+  },
+
 // The File uploader middleware
   uploader = function (req, res) {
+    console.log('incomingPath', incomingPath);
     var form = new multiparty.Form({uploadDir: incomingPath});
     form.parse(req, function (err, fields, files) {
       // Create a new gallery which serves the files which were uploaded
@@ -160,15 +243,21 @@ app.use(bodyParser.urlencoded({
   extended: true
 }));
 
-// Make the uploader available
-app.use('/upload', uploader);
-
-// @todo compress content
 // Make the images which have been uploaded available
 app.use('/content', express.static(content_folder));
 
 // make the metadata available
 app.use('/json/:metaid', metadataGet);
+
+// make the interface available
+app.use('/', express.static(path.join(__dirname, 'html')));
+
+// Make the builder available
+app.use('/makegallery', makeGallery);
+app.use(['/additem/:id', '/additem'], addItem);
+
+// Make the uploader available
+app.use('/upload', uploader);
 
 // Start the HTTP listener on http
 console.log('starting http server on port ' + port_http);
