@@ -1,0 +1,22 @@
+{
+  "name": "gallery-image-api",
+  "version": "1.0.0",
+  "description": "REST Gallery server for images written in node.js",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "mocha"
+  },
+  "author": "Belin Fieldson @thebelin",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0",
+    "mkdirp": "^0.5.1",
+    "mocha": "^3.1.2",
+    "multiparty": "^4.1.2",
+    "nonsense": "^0.2.0",
+    "path": "^0.12.7",
+    "random-lorem": "^1.0.4"
+  }
+}
