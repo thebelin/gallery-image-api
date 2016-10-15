@@ -37,6 +37,7 @@ var path = require('path'),
 
 // multiparty
   multiparty = require('multiparty'),
+  incomingPath = path.join(__dirname, 'incoming'),
 
 // Nonsense generator
   randomLorem = require('random-lorem'),
@@ -90,7 +91,7 @@ var path = require('path'),
 
 // The File uploader middleware
   uploader = function (req, res) {
-    var form = new multiparty.Form();
+    var form = new multiparty.Form({uploadDir: incomingPath});
     form.parse(req, function (err, fields, files) {
       // Create a new gallery which serves the files which were uploaded
       var gallery = new Gallery(),
