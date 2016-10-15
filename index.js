@@ -45,7 +45,7 @@ var path = require('path'),
   mkdirp = require('mkdirp'),
 
 // For resizing images
-  resizeImg = require('resize-img'),
+//  resizeImg = require('resize-img'),
 
 // For reading the size of images
   reader = require('image-size-reader'),
