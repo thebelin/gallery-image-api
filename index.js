@@ -48,7 +48,7 @@ var path = require('path'),
 //  resizeImg = require('resize-img'),
 
 // For reading the size of images
-  reader = require('image-size-reader'),
+ // reader = require('image-size-reader'),
 
 // The metadata we are saving is held here
   metadataStorage = path.join(__dirname, 'data', 'uploads.json'),
