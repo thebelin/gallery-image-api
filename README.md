@@ -16,6 +16,7 @@ To build and start the api, first install node.js and then:
 To change the way the gallery serves data, adjust the env.json file for your specific server.
 
 To post a gallery, use POSTMan to POST all the images as the field "images" to the /upload route.
-Here is a live example running on my own host, which was used in the software demo.
 
-[![Run in Postman](https://run.pstmn.io/button.svg)](https://app.getpostman.com/run-collection/d331566ca734580443a0)
+Here is a live example running on my own host, which was used in the software demo: [![Run in Postman](https://run.pstmn.io/button.svg)](https://app.getpostman.com/run-collection/d331566ca734580443a0)
+
+[My VR Gallery Experience](https://play.google.com/store/apps/details?id=com.thebelin.myvrgallery) on Android lets you view the galleries posted using that example.
