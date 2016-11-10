@@ -75,7 +75,7 @@ var path = require('path'),
     this.files = images instanceof Array ? images : [];
 
     // the gallery has an identifying name, which also acts as security
-    this.id = randomLorem({length: 8, syllables: 3});
+    this.id = randomLorem({length: 8, syllables: 2});
 
     this.toString = function () {
       return JSON.stringify(self);
@@ -197,15 +197,6 @@ var path = require('path'),
           // move the file from the path attribute location
           // to the new location it will serve from
           // @todo and resize it in the process
-          // resizeImg(fs.readFileSync(file.path), {width: 2048, height: 128}).then(buf => {
-          //   fs.writeFileSync('unicorn-128x128.png', buf);
-          // });
-          // reader(file.path).then((result) => {
-          //   console.log(result); // [width, height]
-          //   width = result[0] || 0;
-          //   height = result[1] || 0;
-          // });
-
           fs.rename(file.path, path.join(newLocation, file.originalFilename), function (err) {
             if (err) {
               console.log("Err: ", err);
