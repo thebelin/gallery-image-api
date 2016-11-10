@@ -45,12 +45,6 @@ var path = require('path'),
 // mkdirp allows us to make a folder
   mkdirp = require('mkdirp'),
 
-// For resizing images
-//  resizeImg = require('resize-img'),
-
-// For reading the size of images
- // reader = require('image-size-reader'),
-
 // The metadata we are saving is held here
   metadataStorage = path.join(__dirname, 'data', 'uploads.json'),
 
@@ -114,22 +108,13 @@ var path = require('path'),
           // move the file from the path attribute location
           // to the new location it will serve from
           // @todo and resize it in the process
-          // resizeImg(fs.readFileSync(file.path), {width: 2048, height: 128}).then(buf => {
-          //   fs.writeFileSync('unicorn-128x128.png', buf);
-          // });
-          // reader(file.path).then((result) => {
-          //   console.log(result); // [width, height]
-          //   width = result[0] || 0;
-          //   height = result[1] || 0;
-          // });
-
+          // @todo get uploaded image dimensions
           fs.rename(file.path, path.join(newLocation, file.originalFilename), function (err) {
             if (err) {
               console.log("Err: ", err);
             }
           });
 
-          // @todo get uploaded image dimensions
           return new Image({
             pictureName: file.originalFilename,
             artist: file.originalFilename,
