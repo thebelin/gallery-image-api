@@ -7,7 +7,7 @@
 var path = require('path'),
 
 // The default env values from a JSON file
-  env = require(path.join(__dirname, 'env.json')),
+  env = require(path.join(__dirname, 'env.js')),
 
 // Static content folder to distribute from
   content_folder = (process.env.CONTENT_FOLDER == undefined)
@@ -51,12 +51,6 @@ var path = require('path'),
 // stored metadata is an object with galleries id as keys
   metadata = require(metadataStorage),
 
-// the uploaded image constructor
-  Image = function (options) {
-    options = typeof options == 'object' ? options : {};
-    Object.assign(this, options);
-  }
-
 // the uploaded gallery constructor
   Gallery = function (images) {
     var self = this;
@@ -67,6 +61,9 @@ var path = require('path'),
 
     // the gallery has an identifying name, which also acts as security
     this.id = randomLorem({length: 8, syllables: 3});
+
+    // The gallery has a created on date
+    this.created = new Date();
 
     this.toString = function () {
       return JSON.stringify(self);
@@ -85,15 +82,19 @@ var path = require('path'),
 
 // The File uploader middleware
   uploader = function (req, res) {
+    // ensure that the uploadDir exists
+    mkdirp(incomingPath);
+
     var form = new multiparty.Form({uploadDir: incomingPath});
     form.parse(req, function (err, fields, files) {
+      console.log("err, fields, files: ", err, fields, files);
       // Create a new gallery which serves the files which were uploaded
       var gallery = new Gallery(),
 
       // retain the gallery id
         thisId = gallery.id;
 
-      // Create an array of image objects from the files array
+      // Create an array of image url strings from the files array
       gallery.files = (function () {
         return files.images.map(function (file) {
           // These are the file measurements
@@ -107,21 +108,13 @@ var path = require('path'),
 
           // move the file from the path attribute location
           // to the new location it will serve from
-          // @todo and resize it in the process
-          // @todo get uploaded image dimensions
           fs.rename(file.path, path.join(newLocation, file.originalFilename), function (err) {
             if (err) {
               console.log("Err: ", err);
             }
           });
 
-          return new Image({
-            pictureName: file.originalFilename,
-            artist: file.originalFilename,
-            url: 'http://' + path.join(public_url, "content", gallery.id, file.originalFilename),
-            width: width,
-            height: height
-          });
+          return '/content/' + gallery.id + '/' + file.originalFilename;
         });
       }());
 
